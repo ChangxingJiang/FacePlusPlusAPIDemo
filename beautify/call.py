@@ -3,16 +3,12 @@ import time
 import urllib.error
 import urllib.request
 
-import requests
-
 import environment as env
 import toolkit
 
 
-def face_merge():
-    http_url = 'https://api-cn.faceplusplus.com/imagepp/v1/mergeface'
-    template_path = r"template.jpg"
-    merge_path = r"target.jpg"
+def beautify(demo_path):
+    http_url = 'https://api-cn.faceplusplus.com/facepp/v2/beautify'
 
     boundary = '----------%s' % hex(int(time.time() * 1000))
     data = []
@@ -23,20 +19,35 @@ def face_merge():
     data.append('Content-Disposition: form-data; name="%s"\r\n' % 'api_secret')
     data.append(env.API_SECRET)
     data.append('--%s' % boundary)
-    fr = open(template_path, 'rb')
-    data.append('Content-Disposition: form-data; name="%s"; filename=" "' % 'template_file')
+    fr = open(demo_path, 'rb')
+    data.append('Content-Disposition: form-data; name="%s"; filename=" "' % 'image_file')
     data.append('Content-Type: %s\r\n' % 'application/octet-stream')
     data.append(fr.read())
     fr.close()
+    # data.append('--%s' % boundary)
+    # fr = open(merge_path, 'rb')
+    # data.append('Content-Disposition: form-data; name="%s"; filename=" "' % 'merge_file')
+    # data.append('Content-Type: %s\r\n' % 'application/octet-stream')
+    # data.append(fr.read())
+    # fr.close()
     data.append('--%s' % boundary)
-    fr = open(merge_path, 'rb')
-    data.append('Content-Disposition: form-data; name="%s"; filename=" "' % 'merge_file')
-    data.append('Content-Type: %s\r\n' % 'application/octet-stream')
-    data.append(fr.read())
-    fr.close()
+    data.append('Content-Disposition: form-data; name="%s"\r\n' % 'whitening')
+    data.append('30')
     data.append('--%s' % boundary)
-    data.append('Content-Disposition: form-data; name="%s"\r\n' % 'merge_rate')
-    data.append('100')
+    data.append('Content-Disposition: form-data; name="%s"\r\n' % 'smoothing')
+    data.append('40')
+    data.append('--%s' % boundary)
+    data.append('Content-Disposition: form-data; name="%s"\r\n' % 'thinface')
+    data.append('0')
+    data.append('--%s' % boundary)
+    data.append('Content-Disposition: form-data; name="%s"\r\n' % 'shrink_face')
+    data.append('0')
+    data.append('--%s' % boundary)
+    data.append('Content-Disposition: form-data; name="%s"\r\n' % 'enlarge_eye')
+    data.append('0')
+    data.append('--%s' % boundary)
+    data.append('Content-Disposition: form-data; name="%s"\r\n' % 'remove_eyebrow')
+    data.append('0')
     data.append('--%s--\r\n' % boundary)
 
     for i, d in enumerate(data):
@@ -63,10 +74,9 @@ def face_merge():
         print(e.read().decode('utf-8'))
 
 
-
 if __name__ == "__main__":
-    merge_base64 = face_merge()
+    merge_base64 = beautify(r"demo.jpg")
     # target_base64 = toolkit.load_file_in_base64("target.png")  # 载入目标图
     # template_base64 = toolkit.load_file_in_base64("template.png")  # 载入模板图
     # merge_base64 = face_merge(target_base64, template_base64)  # 请求API
-    toolkit.save_file_as_base64("merge.png", merge_base64)  # 将结果图存入到文件中
+    toolkit.save_file_as_base64("beautify.png", merge_base64)  # 将结果图存入到文件中
